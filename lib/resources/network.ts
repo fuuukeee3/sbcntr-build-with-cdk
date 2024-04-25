@@ -95,5 +95,94 @@ export class Network extends Construct {
       routeTableId: routeTableDB.attrRouteTableId,
       subnetId: privateSubnetDB1C.attrSubnetId,
     });
+
+    // IGW
+    const igw = new ec2.CfnInternetGateway(this, 'igw', {
+      tags: [{
+        key: 'Name',
+        value: 'sbcntr-igw',
+      }],
+    });
+
+    const vpcGatewayAttachment = new ec2.CfnVPCGatewayAttachment(this, 'vpcGatewayAttachment', {
+      vpcId: vpc.vpcId,
+      internetGatewayId: igw.attrInternetGatewayId,
+    });
+    
+    // Ingress用サブネット
+    const publicSubnetIngress1A = new ec2.CfnSubnet(this, 'publicSubnetIngress1A', {
+      vpcId: vpc.vpcId,
+      cidrBlock: '10.0.0.0/24',
+      availabilityZone: 'ap-northeast-1a',
+      mapPublicIpOnLaunch: true
+    });
+    cdk.Tags.of(publicSubnetIngress1A).add('Name',  'sbcntr-subnet-public-ingress-1a');
+    cdk.Tags.of(publicSubnetIngress1A).add('Type',  'Public');
+
+    const publicSubnetIngress1C = new ec2.CfnSubnet(this, 'publicSubnetIngress1C', {
+      vpcId: vpc.vpcId,
+      cidrBlock: '10.0.1.0/24',
+      availabilityZone: 'ap-northeast-1c',
+      mapPublicIpOnLaunch: true
+    });
+    cdk.Tags.of(publicSubnetIngress1C).add('Name',  'sbcntr-subnet-public-ingress-1c');
+    cdk.Tags.of(publicSubnetIngress1C).add('Type',  'Public');
+
+    // Ingress用ルートテーブル
+    const routeTableIngress = new ec2.CfnRouteTable(this, 'routeTableIngress', {
+      vpcId: vpc.vpcId,
+      tags: [{
+        key: 'Name',
+        value: 'sbcntr-route-ingress',
+      }],
+    });
+
+    // ルートテーブル関連付け
+    const routeTableIngressAssociation1A = new ec2.CfnSubnetRouteTableAssociation(this, 'routeTableIngressAssociation1A', {
+      routeTableId: routeTableIngress.attrRouteTableId,
+      subnetId: publicSubnetIngress1A.attrSubnetId,
+    });
+
+    const routeTableIngressAssociation1C = new ec2.CfnSubnetRouteTableAssociation(this, 'routeTableIngressAssociation1C', {
+      routeTableId: routeTableIngress.attrRouteTableId,
+      subnetId: publicSubnetIngress1C.attrSubnetId,
+    });
+
+    const cfnRouteIngress = new ec2.CfnRoute(this, 'MyCfnRoute', {
+      routeTableId: routeTableIngress.attrRouteTableId,
+      destinationCidrBlock: '0.0.0.0/0',
+      gatewayId: igw.attrInternetGatewayId
+    });
+    cfnRouteIngress.addDependency(vpcGatewayAttachment)
+    
+     // 管理用用パブリックサブネット
+     const publicSubnetManagement1A = new ec2.CfnSubnet(this, 'publicSubnetManagement1A', {
+      vpcId: vpc.vpcId,
+      cidrBlock: '10.0.240.0/24',
+      availabilityZone: 'ap-northeast-1a',
+      mapPublicIpOnLaunch: true
+    });
+    cdk.Tags.of(publicSubnetManagement1A).add('Name',  'sbcntr-subnet-public-management-1a');
+    cdk.Tags.of(publicSubnetManagement1A).add('Type',  'Public');
+
+    const publicSubnetManagement1C = new ec2.CfnSubnet(this, 'publicSubnetManagement1C', {
+      vpcId: vpc.vpcId,
+      cidrBlock: '10.0.241.0/24',
+      availabilityZone: 'ap-northeast-1c',
+      mapPublicIpOnLaunch: true
+    });
+    cdk.Tags.of(publicSubnetManagement1C).add('Name',  'sbcntr-subnet-public-management-1c');
+    cdk.Tags.of(publicSubnetManagement1C).add('Type',  'Public');
+
+    // ルートテーブル関連付け
+    const routeTableManagementAssociation1A = new ec2.CfnSubnetRouteTableAssociation(this, 'routeTableManagementAssociation1A', {
+      routeTableId: routeTableIngress.attrRouteTableId,
+      subnetId: publicSubnetManagement1A.attrSubnetId,
+    });
+    
+    const routeTableManagementAssociation1C = new ec2.CfnSubnetRouteTableAssociation(this, 'routeTableManagementAssociation1C', {
+      routeTableId: routeTableIngress.attrRouteTableId,
+      subnetId: publicSubnetManagement1C.attrSubnetId,
+    });
   }
 }
