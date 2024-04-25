@@ -184,5 +184,151 @@ export class Network extends Construct {
       routeTableId: routeTableIngress.attrRouteTableId,
       subnetId: publicSubnetManagement1C.attrSubnetId,
     });
+
+    // --- Security Group ---
+    // インターネット公開用
+    const ingressSG = new ec2.CfnSecurityGroup(this, 'ingressSG', {
+      groupDescription: "Security group for ingress",
+      groupName: "ingres",
+      securityGroupEgress: [{
+        ipProtocol: '-1',
+        cidrIp: '0.0.0.0/0',
+        description: 'Allow all outbound traffic by default',
+      }],
+      securityGroupIngress: [{
+        cidrIp: '0.0.0.0/0',
+        description: 'from 0.0.0.0/0:80',
+        ipProtocol: 'tcp',
+        fromPort: 80,
+        toPort: 80,
+      }, {
+        cidrIpv6: '::/0',
+        description: 'from ::/0:80',
+        ipProtocol: 'tcp',
+        fromPort: 80,
+        toPort: 80,
+      }],
+      tags: [{
+        key: 'Name',
+        value: 'sbcntr-sg-ingress',
+      }],
+      vpcId: vpc.vpcId,
+    });
+
+    // マネジメント用
+    const managementSG = new ec2.SecurityGroup(this, 'managementSG', {
+      vpc,
+      allowAllOutbound: true,
+      description: "Security group for management",
+      securityGroupName: "management",
+    });
+    cdk.Tags.of(managementSG).add('Name',  'sbcntr-sg-management');
+
+    // バックエンド用
+    const backendSG = new ec2.SecurityGroup(this, 'backendSG', {
+      vpc,
+      allowAllOutbound: true,
+      description: "Security group for backend app",
+      securityGroupName: "backend",
+    });
+    cdk.Tags.of(backendSG).add('Name',  'sbcntr-sg-backend');
+
+     // フロントエンド用
+     const frontendSG = new ec2.SecurityGroup(this, 'frontendSG', {
+      vpc,
+      allowAllOutbound: true,
+      description: "Security group for frontend app",
+      securityGroupName: "frontend",
+    });
+    cdk.Tags.of(frontendSG).add('Name',  'sbcntr-sg-frontend');
+    
+    // 内部ロードバランサ用
+    const internalSG = new ec2.SecurityGroup(this, 'internalSG', {
+      vpc,
+      allowAllOutbound: true,
+      description: "Security group for internal load balancer",
+      securityGroupName: "internal",
+    });
+    cdk.Tags.of(internalSG).add('Name',  'sbcntr-sg-internal');
+
+    // DB用
+    const dbSG = new ec2.SecurityGroup(this, 'dbSG', {
+      vpc,
+      allowAllOutbound: true,
+      description: "Security group for database",
+      securityGroupName: "database",
+    });
+    cdk.Tags.of(dbSG).add('Name',  'sbcntr-sg-database');
+
+    // SG ルール紐づけ
+    // Ingress => Front
+    const frontFromIngress = new ec2.CfnSecurityGroupIngress(this, 'frontFromIngress', {
+      ipProtocol: "tcp",
+      description: "HTTP for Ingress",
+      fromPort: 80,
+      toPort: 80,
+      groupId: frontendSG.securityGroupId,
+      sourceSecurityGroupId: ingressSG.attrGroupId,
+    });
+
+    // Front => Internal
+    const internalFromFront = new ec2.CfnSecurityGroupIngress(this, 'internalFromFront', {
+      ipProtocol: "tcp",
+      description: "HTTP for front container",
+      fromPort: 80,
+      toPort: 80,
+      groupId: internalSG.securityGroupId,
+      sourceSecurityGroupId: frontendSG.securityGroupId,
+    });
+
+    // Internal => Backend
+    const BackendFromInternal = new ec2.CfnSecurityGroupIngress(this, 'BackendFromInternal', {
+      ipProtocol: "tcp",
+      description: "HTTP for front interal",
+      fromPort: 80,
+      toPort: 80,
+      groupId: backendSG.securityGroupId,
+      sourceSecurityGroupId: internalSG.securityGroupId,
+    });
+
+    // Backend => DB
+    const dbFromBackend = new ec2.CfnSecurityGroupIngress(this, 'dbFromBackend', {
+      ipProtocol: "tcp",
+      description: "MySQL for front backend",
+      fromPort: 3306,
+      toPort: 3306,
+      groupId: dbSG.securityGroupId,
+      sourceSecurityGroupId: backendSG.securityGroupId,
+    });
+
+    // Frontend => DB
+    const dbFromFrontend = new ec2.CfnSecurityGroupIngress(this, 'dbFromFrontend', {
+      ipProtocol: "tcp",
+      description: "MySQL for front frontend",
+      fromPort: 3306,
+      toPort: 3306,
+      groupId: dbSG.securityGroupId,
+      sourceSecurityGroupId: frontendSG.securityGroupId,
+    });
+
+     // Management => DB
+     const dbFromManagement = new ec2.CfnSecurityGroupIngress(this, 'dbFromManagement', {
+      ipProtocol: "tcp",
+      description: "MySQL for front management",
+      fromPort: 3306,
+      toPort: 3306,
+      groupId: dbSG.securityGroupId,
+      sourceSecurityGroupId: managementSG.securityGroupId,
+    });
+
+    // Management => Internal
+    const internalFromManagement = new ec2.CfnSecurityGroupIngress(this, 'internalFromManagement', {
+      ipProtocol: "tcp",
+      description: "HTTP for front management",
+      fromPort: 80,
+      toPort: 80,
+      groupId: internalSG.securityGroupId,
+      sourceSecurityGroupId: managementSG.securityGroupId,
+    });
   }
 }
