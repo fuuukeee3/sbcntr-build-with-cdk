@@ -7,6 +7,8 @@ export interface NetworkProps {
 }
 
 export class Network extends Construct {
+  // public readonly publicSubnetManagement1A: ec2.CfnSubnet;
+
   constructor(scope: Construct, id: string, props: NetworkProps) {
     super(scope, id);
 
@@ -330,5 +332,8 @@ export class Network extends Construct {
       groupId: internalSG.securityGroupId,
       sourceSecurityGroupId: managementSG.securityGroupId,
     });
+
+    // 外部からのリソース参照用
+    // this.publicSubnetManagement1A = publicSubnetManagement1A;
   }
 }
