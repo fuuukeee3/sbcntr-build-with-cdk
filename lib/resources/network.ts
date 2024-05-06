@@ -30,16 +30,16 @@ export class Network extends Construct {
       cidrBlock: '10.0.8.0/24',
       availabilityZone: 'ap-northeast-1a',
     });
-    cdk.Tags.of(privateSubnetContainer1A).add('Name',  'sbcntr-subnet-private-container-1a');
-    cdk.Tags.of(privateSubnetContainer1A).add('Type',  'Isolated');
+    cdk.Tags.of(privateSubnetContainer1A).add('Name', 'sbcntr-subnet-private-container-1a');
+    cdk.Tags.of(privateSubnetContainer1A).add('Type', 'Isolated');
 
     const privateSubnetContainer1C = new ec2.CfnSubnet(this, 'privateSubnetContainer1C', {
       vpcId: vpc.vpcId,
       cidrBlock: '10.0.9.0/24',
       availabilityZone: 'ap-northeast-1c',
     });
-    cdk.Tags.of(privateSubnetContainer1C).add('Name',  'sbcntr-subnet-private-container-1c');
-    cdk.Tags.of(privateSubnetContainer1C).add('Type',  'Isolated');
+    cdk.Tags.of(privateSubnetContainer1C).add('Name', 'sbcntr-subnet-private-container-1c');
+    cdk.Tags.of(privateSubnetContainer1C).add('Type', 'Isolated');
 
     // コンテナ用ルートテーブル
     const routeTableApp = new ec2.CfnRouteTable(this, 'routeTableApp', {
@@ -67,16 +67,16 @@ export class Network extends Construct {
       cidrBlock: '10.0.16.0/24',
       availabilityZone: 'ap-northeast-1a',
     });
-    cdk.Tags.of(privateSubnetDB1A).add('Name',  'sbcntr-subnet-private-db-1a');
-    cdk.Tags.of(privateSubnetDB1A).add('Type',  'Isolated');
+    cdk.Tags.of(privateSubnetDB1A).add('Name', 'sbcntr-subnet-private-db-1a');
+    cdk.Tags.of(privateSubnetDB1A).add('Type', 'Isolated');
 
     const privateSubnetDB1C = new ec2.CfnSubnet(this, 'privateSubnetDB1C', {
       vpcId: vpc.vpcId,
       cidrBlock: '10.0.17.0/24',
       availabilityZone: 'ap-northeast-1c',
     });
-    cdk.Tags.of(privateSubnetDB1C).add('Name',  'sbcntr-subnet-private-db-1c');
-    cdk.Tags.of(privateSubnetDB1C).add('Type',  'Isolated');
+    cdk.Tags.of(privateSubnetDB1C).add('Name', 'sbcntr-subnet-private-db-1c');
+    cdk.Tags.of(privateSubnetDB1C).add('Type', 'Isolated');
 
     // DB用ルートテーブル
     const routeTableDB = new ec2.CfnRouteTable(this, 'routeTableDB', {
@@ -110,7 +110,7 @@ export class Network extends Construct {
       vpcId: vpc.vpcId,
       internetGatewayId: igw.attrInternetGatewayId,
     });
-    
+
     // Ingress用サブネット
     const publicSubnetIngress1A = new ec2.CfnSubnet(this, 'publicSubnetIngress1A', {
       vpcId: vpc.vpcId,
@@ -118,8 +118,8 @@ export class Network extends Construct {
       availabilityZone: 'ap-northeast-1a',
       mapPublicIpOnLaunch: true
     });
-    cdk.Tags.of(publicSubnetIngress1A).add('Name',  'sbcntr-subnet-public-ingress-1a');
-    cdk.Tags.of(publicSubnetIngress1A).add('Type',  'Public');
+    cdk.Tags.of(publicSubnetIngress1A).add('Name', 'sbcntr-subnet-public-ingress-1a');
+    cdk.Tags.of(publicSubnetIngress1A).add('Type', 'Public');
 
     const publicSubnetIngress1C = new ec2.CfnSubnet(this, 'publicSubnetIngress1C', {
       vpcId: vpc.vpcId,
@@ -127,8 +127,8 @@ export class Network extends Construct {
       availabilityZone: 'ap-northeast-1c',
       mapPublicIpOnLaunch: true
     });
-    cdk.Tags.of(publicSubnetIngress1C).add('Name',  'sbcntr-subnet-public-ingress-1c');
-    cdk.Tags.of(publicSubnetIngress1C).add('Type',  'Public');
+    cdk.Tags.of(publicSubnetIngress1C).add('Name', 'sbcntr-subnet-public-ingress-1c');
+    cdk.Tags.of(publicSubnetIngress1C).add('Type', 'Public');
 
     // Ingress用ルートテーブル
     const routeTableIngress = new ec2.CfnRouteTable(this, 'routeTableIngress', {
@@ -156,16 +156,16 @@ export class Network extends Construct {
       gatewayId: igw.attrInternetGatewayId
     });
     cfnRouteIngress.addDependency(vpcGatewayAttachment)
-    
-     // 管理用用パブリックサブネット
-     const publicSubnetManagement1A = new ec2.CfnSubnet(this, 'publicSubnetManagement1A', {
+
+    // 管理用用パブリックサブネット
+    const publicSubnetManagement1A = new ec2.CfnSubnet(this, 'publicSubnetManagement1A', {
       vpcId: vpc.vpcId,
       cidrBlock: '10.0.240.0/24',
       availabilityZone: 'ap-northeast-1a',
       mapPublicIpOnLaunch: true
     });
-    cdk.Tags.of(publicSubnetManagement1A).add('Name',  'sbcntr-subnet-public-management-1a');
-    cdk.Tags.of(publicSubnetManagement1A).add('Type',  'Public');
+    cdk.Tags.of(publicSubnetManagement1A).add('Name', 'sbcntr-subnet-public-management-1a');
+    cdk.Tags.of(publicSubnetManagement1A).add('Type', 'Public');
 
     const publicSubnetManagement1C = new ec2.CfnSubnet(this, 'publicSubnetManagement1C', {
       vpcId: vpc.vpcId,
@@ -173,15 +173,15 @@ export class Network extends Construct {
       availabilityZone: 'ap-northeast-1c',
       mapPublicIpOnLaunch: true
     });
-    cdk.Tags.of(publicSubnetManagement1C).add('Name',  'sbcntr-subnet-public-management-1c');
-    cdk.Tags.of(publicSubnetManagement1C).add('Type',  'Public');
+    cdk.Tags.of(publicSubnetManagement1C).add('Name', 'sbcntr-subnet-public-management-1c');
+    cdk.Tags.of(publicSubnetManagement1C).add('Type', 'Public');
 
     // ルートテーブル関連付け
     const routeTableManagementAssociation1A = new ec2.CfnSubnetRouteTableAssociation(this, 'routeTableManagementAssociation1A', {
       routeTableId: routeTableIngress.attrRouteTableId,
       subnetId: publicSubnetManagement1A.attrSubnetId,
     });
-    
+
     const routeTableManagementAssociation1C = new ec2.CfnSubnetRouteTableAssociation(this, 'routeTableManagementAssociation1C', {
       routeTableId: routeTableIngress.attrRouteTableId,
       subnetId: publicSubnetManagement1C.attrSubnetId,
@@ -224,7 +224,7 @@ export class Network extends Construct {
       description: "Security group for management",
       securityGroupName: "management",
     });
-    cdk.Tags.of(managementSG).add('Name',  'sbcntr-sg-management');
+    cdk.Tags.of(managementSG).add('Name', 'sbcntr-sg-management');
 
     // バックエンド用
     const backendSG = new ec2.SecurityGroup(this, 'backendSG', {
@@ -233,17 +233,17 @@ export class Network extends Construct {
       description: "Security group for backend app",
       securityGroupName: "backend",
     });
-    cdk.Tags.of(backendSG).add('Name',  'sbcntr-sg-backend');
+    cdk.Tags.of(backendSG).add('Name', 'sbcntr-sg-backend');
 
-     // フロントエンド用
-     const frontendSG = new ec2.SecurityGroup(this, 'frontendSG', {
+    // フロントエンド用
+    const frontendSG = new ec2.SecurityGroup(this, 'frontendSG', {
       vpc,
       allowAllOutbound: true,
       description: "Security group for frontend app",
       securityGroupName: "frontend",
     });
-    cdk.Tags.of(frontendSG).add('Name',  'sbcntr-sg-frontend');
-    
+    cdk.Tags.of(frontendSG).add('Name', 'sbcntr-sg-frontend');
+
     // 内部ロードバランサ用
     const internalSG = new ec2.SecurityGroup(this, 'internalSG', {
       vpc,
@@ -251,7 +251,7 @@ export class Network extends Construct {
       description: "Security group for internal load balancer",
       securityGroupName: "internal",
     });
-    cdk.Tags.of(internalSG).add('Name',  'sbcntr-sg-internal');
+    cdk.Tags.of(internalSG).add('Name', 'sbcntr-sg-internal');
 
     // DB用
     const dbSG = new ec2.SecurityGroup(this, 'dbSG', {
@@ -260,7 +260,7 @@ export class Network extends Construct {
       description: "Security group for database",
       securityGroupName: "database",
     });
-    cdk.Tags.of(dbSG).add('Name',  'sbcntr-sg-database');
+    cdk.Tags.of(dbSG).add('Name', 'sbcntr-sg-database');
 
     // SG ルール紐づけ
     // Ingress => Front
@@ -313,8 +313,8 @@ export class Network extends Construct {
       sourceSecurityGroupId: frontendSG.securityGroupId,
     });
 
-     // Management => DB
-     const dbFromManagement = new ec2.CfnSecurityGroupIngress(this, 'dbFromManagement', {
+    // Management => DB
+    const dbFromManagement = new ec2.CfnSecurityGroupIngress(this, 'dbFromManagement', {
       ipProtocol: "tcp",
       description: "MySQL for front management",
       fromPort: 3306,
@@ -335,5 +335,99 @@ export class Network extends Construct {
 
     // 外部からのリソース参照用
     // this.publicSubnetManagement1A = publicSubnetManagement1A;
+
+    // VPCエンドポイント(Egress通信)
+    const privateSubnetEgress1A = new ec2.CfnSubnet(this, 'privateSubnetEgress1A', {
+      vpcId: vpc.vpcId,
+      cidrBlock: '10.0.248.0/24',
+      availabilityZone: 'ap-northeast-1a',
+    });
+    cdk.Tags.of(privateSubnetEgress1A).add('Name', 'sbcntr-subnet-private-egress-1a');
+    cdk.Tags.of(privateSubnetEgress1A).add('Type', 'Isolated');
+
+    const privateSubnetEgress1C = new ec2.CfnSubnet(this, 'privateSubnetEgress1C', {
+      vpcId: vpc.vpcId,
+      cidrBlock: '10.0.249.0/24',
+      availabilityZone: 'ap-northeast-1c',
+    });
+    cdk.Tags.of(privateSubnetEgress1C).add('Name', 'sbcntr-subnet-private-egress-1c');
+    cdk.Tags.of(privateSubnetEgress1C).add('Type', 'Isolated');
+
+    const egressSG = new ec2.SecurityGroup(this, 'egressSG', {
+      vpc,
+      allowAllOutbound: true,
+      description: "Security Group of VPC Endpoint",
+      securityGroupName: "egress",
+    });
+    cdk.Tags.of(egressSG).add('Name', ' sbcntr-sg-vpce');
+
+    // Backend Container => VPC Endpoint
+    const vpceFromBackend = new ec2.CfnSecurityGroupIngress(this, 'vpceFromBackend', {
+      ipProtocol: "tcp",
+      description: "HTTPS for Backend Container App",
+      fromPort: 443,
+      toPort: 443,
+      groupId: egressSG.securityGroupId,
+      sourceSecurityGroupId: backendSG.securityGroupId,
+    });
+
+    // Frontend Container => VPC Endpoint
+    const vpceFromFrontend = new ec2.CfnSecurityGroupIngress(this, 'vpceFromFrontend', {
+      ipProtocol: "tcp",
+      description: "HTTPS for Frontend Container App",
+      fromPort: 443,
+      toPort: 443,
+      groupId: egressSG.securityGroupId,
+      sourceSecurityGroupId: frontendSG.securityGroupId,
+    });
+
+    // Management => VPC Endpoint
+    const vpceFromManagement = new ec2.CfnSecurityGroupIngress(this, 'vpceFromManagement', {
+      ipProtocol: "tcp",
+      description: "HTTPS for Management",
+      fromPort: 443,
+      toPort: 443,
+      groupId: egressSG.securityGroupId,
+      sourceSecurityGroupId: managementSG.securityGroupId,
+    });
+
+    // VPCエンドポイント
+    const ecrApiVpcEndpoint = new ec2.CfnVPCEndpoint(this, 'ecrApiVpcEndpoint', {
+      serviceName: 'com.amazonaws.ap-northeast-1.ecr.api',
+      vpcId: vpc.vpcId,
+      privateDnsEnabled: true,
+      securityGroupIds: [
+        egressSG.securityGroupId
+      ],
+      subnetIds: [
+        privateSubnetEgress1A.attrSubnetId,
+        privateSubnetEgress1C.attrSubnetId
+      ],
+      vpcEndpointType: 'Interface',
+    });
+    cdk.Tags.of(ecrApiVpcEndpoint).add('Name', 'sbcntr-vpce-ecr-api');
+
+    const ecrDkrVpcEndpoint = new ec2.CfnVPCEndpoint(this, 'ecrDkrVpcEndpoint', {
+      serviceName: 'com.amazonaws.ap-northeast-1.ecr.dkr',
+      vpcId: vpc.vpcId,
+      privateDnsEnabled: true,
+      securityGroupIds: [
+        egressSG.securityGroupId
+      ],
+      subnetIds: [
+        privateSubnetEgress1A.attrSubnetId,
+        privateSubnetEgress1C.attrSubnetId
+      ],
+      vpcEndpointType: 'Interface',
+    });
+    cdk.Tags.of(ecrDkrVpcEndpoint).add('Name', 'sbcntr-vpce-ecr-dkr');
+
+    const s3VpcEndpoint = new ec2.CfnVPCEndpoint(this, 's3VpcEndpoint', {
+      serviceName: 'com.amazonaws.ap-northeast-1.s3',
+      vpcId: vpc.vpcId,
+      routeTableIds: [routeTableApp.attrRouteTableId],
+      vpcEndpointType: 'Gateway',
+    });
+    cdk.Tags.of(s3VpcEndpoint).add('Name', 'sbcntr-vpce-s3');
   }
 }
