@@ -1,5 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { Construct } from 'constructs';
 
 export interface NetworkProps {
@@ -8,6 +9,7 @@ export interface NetworkProps {
 
 export class Network extends Construct {
   // public readonly publicSubnetManagement1A: ec2.CfnSubnet;
+  public readonly vpc: ec2.Vpc;
 
   constructor(scope: Construct, id: string, props: NetworkProps) {
     super(scope, id);
@@ -333,6 +335,16 @@ export class Network extends Construct {
       sourceSecurityGroupId: managementSG.securityGroupId,
     });
 
+    // Management => Internal
+    const internalFromManagementTestPort = new ec2.CfnSecurityGroupIngress(this, 'internalFromManagementTestPort', {
+      ipProtocol: "tcp",
+      description: "Test port for management server",
+      fromPort: 10080,
+      toPort: 10080,
+      groupId: internalSG.securityGroupId,
+      sourceSecurityGroupId: managementSG.securityGroupId,
+    });
+
     // 外部からのリソース参照用
     // this.publicSubnetManagement1A = publicSubnetManagement1A;
 
@@ -429,5 +441,118 @@ export class Network extends Construct {
       vpcEndpointType: 'Gateway',
     });
     cdk.Tags.of(s3VpcEndpoint).add('Name', 'sbcntr-vpce-s3');
+
+    // VPCエンドポイント CloudWatch Logs用
+    const logVpcEndpoint = new ec2.CfnVPCEndpoint(this, 'logVpcEndpoint', {
+      serviceName: 'com.amazonaws.ap-northeast-1.logs',
+      vpcId: vpc.vpcId,
+      privateDnsEnabled: true,
+      securityGroupIds: [
+        egressSG.securityGroupId
+      ],
+      subnetIds: [
+        privateSubnetEgress1A.attrSubnetId,
+        privateSubnetEgress1C.attrSubnetId
+      ],
+      vpcEndpointType: 'Interface',
+    });
+    cdk.Tags.of(logVpcEndpoint).add('Name', 'sbcntr-vpce-logs');
+
+    // Load Balancer
+    const interalAlb = new elb.CfnLoadBalancer(this, 'interalAlb', {
+      name: 'sbcntr-alb-internal',
+      scheme: 'internal',
+      subnets: [privateSubnetContainer1A.attrSubnetId, privateSubnetContainer1C.attrSubnetId],
+      securityGroups: [internalSG.securityGroupId],
+      tags: [{
+        key: 'Name',
+        value: 'sbcntr-alb-internal',
+      }],
+      type: 'application',
+    });
+
+    // TargetGroup Blue
+    const blueTG = new elb.CfnTargetGroup(this, 'blueTG', {
+      healthCheckEnabled: true,
+      healthCheckIntervalSeconds: 15,
+      healthCheckPath: '/healthcheck',
+      healthCheckPort: '80',
+      healthCheckProtocol: 'HTTP',
+      healthCheckTimeoutSeconds: 5,
+      healthyThresholdCount: 3,
+      ipAddressType: 'ipv4',
+      matcher: {
+        grpcCode: '',
+        httpCode: '200',
+      },
+      name: 'sbcntr-tg-sbcntrdemo-blue',
+      port: 80,
+      protocol: 'HTTP',
+      protocolVersion: 'HTTP1',
+      tags: [{
+        key: 'Name',
+        value: 'sbcntr-tg-sbcntrdemo-blue',
+      }],
+      unhealthyThresholdCount: 2,
+      vpcId: vpc.vpcId,
+    });
+
+    // リスナー Blue
+    const interalAlbListner = new elb.CfnListener(this, 'interalAlbListner', {
+      defaultActions: [{
+        type: 'forward',
+        forwardConfig: {
+          targetGroups: [{
+            targetGroupArn: blueTG.attrTargetGroupArn,
+            weight: 1,
+          }],
+        },
+      }],
+      loadBalancerArn: interalAlb.attrLoadBalancerArn,
+      port: 80,
+      protocol: 'HTTP',
+    });
+
+    // TargetGroup Green
+    const greenTG = new elb.CfnTargetGroup(this, 'greenTG', {
+      healthCheckEnabled: true,
+      healthCheckIntervalSeconds: 15,
+      healthCheckPath: '/healthcheck',
+      healthCheckPort: '80',
+      healthCheckProtocol: 'HTTP',
+      healthCheckTimeoutSeconds: 5,
+      healthyThresholdCount: 3,
+      ipAddressType: 'ipv4',
+      matcher: {
+        grpcCode: '',
+        httpCode: '200',
+      },
+      name: 'sbcntr-tg-sbcntrdemo-green',
+      port: 80,
+      protocol: 'HTTP',
+      protocolVersion: 'HTTP1',
+      tags: [{
+        key: 'Name',
+        value: 'sbcntr-tg-sbcntrdemo-green',
+      }],
+      unhealthyThresholdCount: 2,
+      vpcId: vpc.vpcId,
+    });
+
+    // リスナー Green
+    const interalAlbListnerGreen = new elb.CfnListener(this, 'interalAlbListnerGreen', {
+      defaultActions: [{
+        type: 'forward',
+        forwardConfig: {
+          targetGroups: [{
+            targetGroupArn: greenTG.attrTargetGroupArn,
+            weight: 1,
+          }],
+        },
+      }],
+      loadBalancerArn: interalAlb.attrLoadBalancerArn,
+      port: 10080,
+      protocol: 'HTTP',
+    });
   }
 }

@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Network } from './resources/network';
 import { Ecs } from './resources/ecs'
+import { Iam } from './resources/iam'
 // import { Cloud9 } from './resources/cloud9';
 
 export class SbcntrBuildWithCdkStack extends cdk.Stack {
@@ -15,5 +16,7 @@ export class SbcntrBuildWithCdkStack extends cdk.Stack {
     // })
 
     const ecs = new Ecs(this, 'Ecs', {})
+
+    const iam = new Iam(this, 'Iam', {})
   }
 }
